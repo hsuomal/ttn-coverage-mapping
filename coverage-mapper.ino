@@ -1,3 +1,4 @@
+// new
 /*******************************************************************************
  * Copyright (c) 2015 Thomas Telkamp and Matthijs Kooijman,
  * Copyright (c) 2019 Harri Suomalainen
@@ -125,6 +126,16 @@ const lmic_pinmap lmic_pins = {
 .dio = {26, 33, LMIC_UNUSED_PIN}, // ttgo t-beam pcb has table of 26, 33, 32
 };
 
+
+void ledOn(){
+  pinMode(14,OUTPUT);
+  digitalWrite(14,HIGH);  // LED ON as an indicator (no led in the new model though, works only on old model)
+}
+
+void ledOff(){
+  pinMode(14,OUTPUT);
+  digitalWrite(14,LOW);  // LED OFF as an indicator (no led in the new model though, works only on old model)
+}
 
 // Schedule next data transmission based on interval time in seconds
 void scheduleTransmission(uint8_t seconds) {
@@ -311,8 +322,7 @@ void do_send(osjob_t* j){
         txData[9] = satellitesGps;  // 8bits
 
 
-        pinMode(14,OUTPUT);
-        digitalWrite(14,HIGH);  // LED ON as an indicator (no led in the new model though, works only on old model)
+        ledOn();
         
         // Print payload in hex
         Serial.print("Payload: ");
@@ -322,7 +332,7 @@ void do_send(osjob_t* j){
         }
         Serial.println("");
         delay(100);
-        digitalWrite(14,LOW);
+        ledOff();
 
         // Prepare upstream data transmission at the next possible time. LMIC_setTxData(port, buffer, lenght, confirmed)
         // FPort 0 recerved for mac, can use FPorts 1...199 for different applications, Fport>=200 sometimes in use/recerved
@@ -338,7 +348,15 @@ void do_send(osjob_t* j){
         Serial.print(", Batt ");
         Serial.println(getBatteryVoltage(),3); // poll battery voltage in case we need to shut down with empty battery
 
-        scheduleTransmission(1);  // schedule next session sooner than normally (TX_INTERVAL/8) or even the next second
+        ledOn();    // double flash to indicate we're not shut down
+        delay(10);
+        ledOff();
+        delay(200);
+        ledOn();
+        delay(10);
+        ledOff();
+
+        scheduleTransmission(2);  // schedule next session sooner than normally
       }
       
 } // void do_send()
