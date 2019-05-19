@@ -61,7 +61,6 @@
 #include "gps.h"
 
 
-
 ///////////////////////////////////////////////////////// prototype code for fute mods
 /*
 const char *devAddr = "26011171";
@@ -85,35 +84,27 @@ void hex2buffer(char *instring, u1_t *outbuffer) {
 */
 
 //////////////////////////////////////////////////////////
-#define DEVICE 1
 
-//---------------------
-#if DEVICE==1
-// MSB first
-static const PROGMEM u1_t NWKSKEY[16] = { 0xA7, 0xC5, 0xBC, 0x20, 0x9D, 0xB7, 0x95, 0xD4, 0xE1, 0xC1, 0x57, 0xFC, 0x9D, 0xD2, 0xB2, 0x26 };
-// MSB first
-static const u1_t PROGMEM APPSKEY[16] = { 0x99, 0x49, 0xC6, 0x6D, 0x1E, 0x6A, 0x20, 0x01, 0x67, 0xEA, 0x09, 0xD0, 0x9E, 0x1F, 0xF4, 0x53 };
-// MSB first
-static const u4_t DEVADDR = 0x26011FD9 ; // <-- Change this address for every node!
-uint TX_INTERVAL=20; // 0,5%
-uint8_t Fport=100; // chosen port 100 for tracker
+#define USE_SECRETS_FILE  // uncomment to use separate file for device keys. Comment for values below.
+#ifdef  USE_SECRETS_FILE
+#include "secrets.h"    // this contains private device keys as below. This is not uploaded to github publicly.
+#else
 
-//-------------------ls 
-#elif DEVICE==2
-// LoRaWAN NwkSKey, network session key
-// This is the default Semtech key, which is used by the early prototype TTN network. MSB first byte order
-static const PROGMEM u1_t NWKSKEY[16] = { 0xB7, 0x68, 0xBC, 0x56, 0x37, 0xE6, 0xD6, 0x02, 0xB7, 0x08, 0xD3, 0xC6, 0xBE, 0x32, 0xC6, 0xD0 };
-// LoRaWAN AppSKey, application session key
-// This is the default Semtech key, which is used by the early prototype TTN network. MSB first byte order
-static const u1_t PROGMEM APPSKEY[16] = { 0xDB, 0x12, 0x60, 0xB7, 0xB0, 0xF4, 0xC4, 0xBC, 0x3C, 0x3D, 0xA5, 0xF5, 0x4D, 0xA7, 0x95, 0x6C };
-// LoRaWAN end-device address (DevAddr)
-static const u4_t DEVADDR = 0x26011171 ; // <-- Change this address for every node!
-uint TX_INTERVAL=180;                    // 30s/day transmission time with sf7, just within ttn fair use policy.
-uint8_t Fport=1;                         // Port 1 for testing, Port 100 for forwarding. Port must match decoder script on ttn decoder.
-                                         // can use different port for debugging and forward only some port via ttn-mapper integration
-
+  // LoRaWAN NwkSKey, network session key MSB first byte order
+  static const PROGMEM u1_t NWKSKEY[16] = { 0x99, 0x98, 0x97, 0x96, 0x95, 0xE6, 0xD6, 0x02, 0xB7, 0x08, 0xD3, 0xC6, 0xBE, 0x32, 0xC6, 0xD0 };
+  // LoRaWAN AppSKey, application session key
+  // This is the default Semtech key, which is used by the early prototype TTN network. MSB first byte order
+  static const u1_t PROGMEM APPSKEY[16] = { 0x99, 0x98, 0x97, 0x96, 0x95, 0xF4, 0xC4, 0xBC, 0x3C, 0x3D, 0xA5, 0xF5, 0x4D, 0xA7, 0x95, 0x6C };
+  // LoRaWAN end-device address (DevAddr)
+  static const u4_t DEVADDR = 0x26123456 ; // <-- Change this address for every node!
+  uint TX_INTERVAL=180;                    // 30s/day transmission time with sf7, just within ttn fair use policy.
+  uint8_t Fport=100;                         // Port 1 for testing, Port 100 for forwarding. Port must match decoder script on ttn decoder.
+#define DEVICE_NUM 1
 #endif
 
+#ifndef DEVICE_NUM
+#error "Trying to included non-existing secrets.h file perhaps?"
+#endif
 
 
 // These callbacks are only used in over-the-air activation, so they are
@@ -301,6 +292,9 @@ void do_send(osjob_t* j){
         hdopGps = fix.hdop/100>255 ? 255 : fix.hdop/100;              // hdop*10, max 255 (gix.hdop returns hdop*1000)
         satellitesGps = gps.sat_count;
 
+        // HARDCODED SAT COUNT = 0, satellite count seems unreliable, send 0 for now to ignore value
+        satellitesGps=0;
+
         if(!gps.satellites_valid()) satellitesGps=0;  // send zero if not valid count
 
         txData[0] = ( LatitudeBinary >> 16 ) & 0xFF;  // Store as 24 bit value
@@ -421,7 +415,7 @@ void setup() {
     // TTN uses SF9 for its RX2 window on EU868 band. This may be SF12 in US915
     LMIC.dn2Dr = DR_SF9;
 
-    LMIC_disableChannel(0); // You can disable channels if you want to measure only some channel(s)
+    LMIC_disableChannel(0); // You can disable channels if you want to measure only some channel(s). Comment out to not disable!
 
     // Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
     // TTN Mapper is based on worst case ie. SF7
