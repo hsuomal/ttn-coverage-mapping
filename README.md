@@ -7,7 +7,7 @@ there to futher push data for drawing ttn coverage maps.
 ## TTN Mapper integration
 A nice trick is to use different ports for degugging and production. I use port 1 (default) for debugging and limit ttn-mapper integration only on port 100.
 
-Data is sent as a binary packet and must be decoded with ttn payload decoder. Sample decoding scipt included in comment of files.
+Data is sent as a binary packet and must be decoded with ttn payload decoder. Sample decoding scipt included in tt-decoder directory.
 
 
 ## Caviats

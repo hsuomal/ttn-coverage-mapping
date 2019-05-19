@@ -1,0 +1,29 @@
+// Function for ttn decoder, used to decode binary message to form json
+function Decoder(bytes){
+  //function Decoder(bytes, Fport){
+  // Fport can be varied for different apps or different data
+  var lat = bytes[0]<<16 | bytes[1]<<8 | bytes[2];
+  var lon = bytes[3]<<16 | bytes[4]<<8 | bytes[5];
+  var alt = bytes[6]<<8 | bytes[7];
+  var hdop = bytes[8] /10;
+  var nsat = bytes[9];
+
+  lat = lat / 16777215 * 180 -90;
+  lon = lon / 16777215 * 360-180;
+
+  if(nsat===0)  // to allow packets without sat count when not available at the time
+    return {
+      latitude: lat,
+      longitude: lon,
+      altitude: alt,
+      hdop: hdop,
+   }
+  else return {
+      latitude: lat,
+      longitude: lon,
+      altitude: alt,
+      hdop: hdop,
+      satellites: nsat
+   }
+}
+
