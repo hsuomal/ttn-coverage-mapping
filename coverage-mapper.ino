@@ -1,4 +1,4 @@
-// new
+
 /*******************************************************************************
  * Copyright (c) 2015 Thomas Telkamp and Matthijs Kooijman,
  * Copyright (c) 2019 Harri Suomalainen
@@ -165,9 +165,9 @@ void onEvent (ev_t ev) {
         case EV_JOINED:
             Serial.println(F("EV_JOINED"));
             break;
-        case EV_RFU1:
-            Serial.println(F("EV_RFU1"));
-            break;
+//        case EV_RFU1:
+//            Serial.println(F("EV_RFU1"));   // Event defined but not used in code
+//            break;
         case EV_JOIN_FAILED:
             Serial.println(F("EV_JOIN_FAILED"));
             break;
@@ -200,6 +200,9 @@ void onEvent (ev_t ev) {
             break;
         case EV_LINK_ALIVE:
             Serial.println(F("EV_LINK_ALIVE"));
+            break;
+        case EV_TXSTART:
+            Serial.println(F("EV_TXSTART"));
             break;
          default:
             Serial.println(F("Unknown event"));

@@ -17,7 +17,7 @@ Data is sent as a binary packet to keep it small and must be decoded with ttn pa
 GPS satelitte count seems sometimes out of sync/wrong. Currently it is hardcoded to send count 0 which is ignored at decoder sctipt.
 
 ## Libraries
-Arduino-LMIC (for lorawan) https://github.com/SlashDevin/NeoGPS, NeoGPS (for gps) https://github.com/matthijskooijman/arduino-lmic
+Arduino-LMIC (for lorawan) https://github.com/mcci-catena/arduino-lmic , NeoGPS (for gps) https://github.com/SlashDevin/NeoGPS
 
 
 ## Licensing
